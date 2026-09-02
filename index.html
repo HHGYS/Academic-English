@@ -47,7 +47,7 @@ h2{font-size:1.15rem;margin:.2rem 0}
 .chip.small{padding:1px 8px}
 .chip.active{background:#2563eb;color:#fff}
 .meta-author{color:#7c3aed;font-weight:600}
-.meta-{color:#0d9488;font-weight:600}
+.meta-year{color:#0d9488;font-weight:600}
 .meta-journal{color:#b45309;font-weight:600}
 .filters{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
 .filters input[type=text],.filters #f-search{flex:1;min-width:160px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;font-size:.92rem;font-family:inherit}
@@ -134,7 +134,7 @@ function loadDB(){
     if(raw){var d=JSON.parse(raw);if(d&&Array.isArray(d.articles)&&Array.isArray(d.sentences)){
       if(!Array.isArray(d.words))d.words=[];
       d.articles.forEach(function(a){
-        if(!a.field)a.field='';if(!a.author)a.author='';if(!a.)a.='';if(!a.journal)a.journal='';
+        if(!a.field)a.field='';if(!a.author)a.author='';if(!a.year)a.year='';if(!a.journal)a.journal='';
         if(!a.abstractEn)a.abstractEn='';if(!a.abstractZh)a.abstractZh='';
       });
       return d;
@@ -357,7 +357,7 @@ function fieldChipsHtml(f){
 function homeMetaHtml(a){
   var parts=[];
   if(a.author)parts.push('<span class="meta-author">'+esc(a.author)+'</span>');
-  if(a.)parts.push('<span class="meta-">'+esc(a.)+'</span>');
+  if(a.year)parts.push('<span class="meta-year">'+esc(a.year)+'年</span>');
   if(a.journal)parts.push('<span class="meta-journal">'+esc(a.journal)+'</span>');
   if(!parts.length)return '';
   return '<div class="a-meta" style="margin-top:2px">'+parts.join(' · ')+'</div>';
@@ -365,7 +365,7 @@ function homeMetaHtml(a){
 function articleMetaHtml(art){
   var parts=[];
   if(art.author)parts.push('<span class="meta-author">作者：'+esc(art.author)+'</span>');
-  if(art.)parts.push('<span class="meta-">'+esc(art.)+'</span>');
+  if(art.year)parts.push('<span class="meta-year">'+esc(art.year)+'年</span>');
   if(art.journal)parts.push('<span class="meta-journal">'+esc(art.journal)+'</span>');
   var fields=String(art.field||'').split(/[,，]/).map(function(x){return x.trim();}).filter(Boolean);
   fields.forEach(function(f){parts.push('<span class="chip small">'+esc(f)+'</span>');});
