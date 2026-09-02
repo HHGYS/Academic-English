@@ -357,7 +357,7 @@ function fieldChipsHtml(f){
 function homeMetaHtml(a){
   var parts=[];
   if(a.author)parts.push('<span class="meta-author">'+esc(a.author)+'</span>');
-  if(a.year)parts.push('<span class="meta-year">'+esc(a.year)+'年</span>');
+  if(a.year)parts.push('<span class="meta-year">'+esc(a.year)+'</span>');
   if(a.journal)parts.push('<span class="meta-journal">'+esc(a.journal)+'</span>');
   if(!parts.length)return '';
   return '<div class="a-meta" style="margin-top:2px">'+parts.join(' · ')+'</div>';
@@ -365,7 +365,7 @@ function homeMetaHtml(a){
 function articleMetaHtml(art){
   var parts=[];
   if(art.author)parts.push('<span class="meta-author">作者：'+esc(art.author)+'</span>');
-  if(art.year)parts.push('<span class="meta-year">'+esc(art.year)+'年</span>');
+  if(art.year)parts.push('<span class="meta-year">'+esc(art.year)+'</span>');
   if(art.journal)parts.push('<span class="meta-journal">'+esc(art.journal)+'</span>');
   var fields=String(art.field||'').split(/[,，]/).map(function(x){return x.trim();}).filter(Boolean);
   fields.forEach(function(f){parts.push('<span class="chip small">'+esc(f)+'</span>');});
