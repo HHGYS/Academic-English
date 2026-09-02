@@ -392,7 +392,7 @@ function fieldChipsHtml(f){
 function homeMetaHtml(a){
   var parts=[];
   if(a.author)parts.push('<span class="meta-author">'+esc(a.author)+'</span>');
-  if(a.year)parts.push('<span class="meta-year">'+esc(a.year)+'年</span>');
+  if(a.year)parts.push('<span class="meta-year">'+esc(a.year)+'</span>');
   if(a.journal)parts.push('<span class="meta-journal">'+esc(a.journal)+'</span>');
   if(!parts.length)return '';
   return '<div class="a-meta" style="margin-top:2px">'+parts.join(' · ')+'</div>';
@@ -400,7 +400,7 @@ function homeMetaHtml(a){
 function articleMetaHtml(art){
   var parts=[];
   if(art.author)parts.push('<span class="meta-author">作者：'+esc(art.author)+'</span>');
-  if(art.year)parts.push('<span class="meta-year">'+esc(art.year)+'年</span>');
+  if(art.year)parts.push('<span class="meta-year">'+esc(art.year)+'</span>');
   if(art.journal)parts.push('<span class="meta-journal">'+esc(art.journal)+'</span>');
   var fields=String(art.field||'').split(/[,，]/).map(function(x){return x.trim();}).filter(Boolean);
   fields.forEach(function(f){parts.push('<span class="chip small">'+esc(f)+'</span>');});
@@ -634,7 +634,7 @@ function abstractModal(id){
     '<textarea id="m-abs-en" rows="5" placeholder="Paste the English abstract here…">'+(art.abstractEn?esc(art.abstractEn):'')+'</textarea>'+
     '<label>中文翻译（练习时看这个）</label>'+
     '<textarea id="m-abs-zh" rows="5" placeholder="你的中文翻译">'+(art.abstractZh?esc(art.abstractZh):'')+'</textarea>'+
-    '<button class="btn ghost small" id="m-swap-abs" type="button">⇄ 互换中英文（如果填反了，点这里）</button>'+
+    '<button class="btn ghost small" id="m-swap-abs" type="button">⇄ 互换中英文</button>'+
     '<div class="muted" style="font-size:.78rem">建议中英文一句对一句，练习时会按句逐句过关</div>'+
     '<div class="modal-btns"><button class="btn primary" id="m-save">保存</button><button class="btn ghost" id="m-cancel">取消</button></div>');
   $('m-cancel').onclick=closeModal;
