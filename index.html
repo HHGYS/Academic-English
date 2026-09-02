@@ -218,14 +218,20 @@ function splitAbstract(text){
   if(buf.trim())out.push(buf.trim());
   return out;
 }
-function startAbstractPractice(articleId){
+function startAbstractPractice(articleId,restart){
   var art=DB.articles.find(function(a){return a.id===articleId;});
   if(!art||!art.abstractEn||!art.abstractZh){toast('这篇还没有摘要，先录入摘要');location.hash='#/a/'+articleId;return;}
   var enParts=splitAbstract(art.abstractEn);
   var zhParts=splitAbstract(art.abstractZh);
-  var units=enParts.map(function(en,i){return {id:'abs-'+i,en:en,zh:zhParts[i]||'',abs:true};});
+  var units=enParts.map(function(en,i){return {id:'abs-'+i,i:i,en:en,zh:zhParts[i]||'',abs:true};});
   if(!units.length){toast('摘要内容为空');location.hash='#/a/'+articleId;return;}
-  sess={mode:'abstract',articleId:articleId,ids:units,idx:0,passOnce:0,total:units.length};
+  var done=restart?[]:(art.absDone||[]);
+  var idx=restart?0:(art.absPos||0);
+  if(idx>=units.length)idx=0;
+  while(idx<units.length&&done.indexOf(idx)>=0)idx++;
+  if(idx>=units.length){idx=0;while(idx<units.length&&done.indexOf(idx)>=0)idx++;}
+  if(idx>=units.length)idx=0;
+  sess={mode:'abstract',articleId:articleId,ids:units,idx:idx,passOnce:0,total:units.length};
   renderPractice();
 }
 function renderPractice(){
@@ -242,7 +248,7 @@ function renderPractice(){
   app.innerHTML=
     '<div class="practice-top">'+
       '<button class="btn ghost small" id="p-exit">← 退出</button>'+
-      '<span class="p-progress">第 <b>'+(sess.idx+1)+'</b> / '+sess.ids.length+' 句'+(sess.mode==='abstract'?'（摘要）':'')+(art?' · '+esc(art.title):'')+'</span>'+
+      '<span class="p-progress">第 <b>'+(sess.idx+1)+'</b> / '+sess.ids.length+' 句'+(sess.mode==='abstract'?(art&&art.absDone?'（摘要 · 已过关 '+art.absDone.length+'/'+sess.ids.length+'）':'（摘要）'):'')+(art?' · '+esc(art.title):'')+'</span>'+
       '<button class="btn ghost small" id="p-reveal">显示原文</button>'+
     '</div>'+
     '<div class="card">'+
@@ -271,7 +277,12 @@ function renderPractice(){
     if(revealN<words.length)revealN++;
     renderHint();
   }
-  $('p-exit').onclick=function(){var back=sess.articleId?'#/a/'+sess.articleId:'#/';sess=null;if(location.hash===back){route();}else{location.hash=back;}};
+  $('p-exit').onclick=function(){
+    if(sess.mode==='abstract'&&sess.articleId){
+      var a2=DB.articles.find(function(a){return a.id===sess.articleId;});
+      if(a2){a2.absPos=sess.idx;saveDB();}
+    }
+    var back=sess.articleId?'#/a/'+sess.articleId:'#/';sess=null;if(location.hash===back){route();}else{location.hash=back;}};
   $('p-reveal').onclick=function(){
     var box=$('p-reveal-box');
     var hidden=box.classList.toggle('hidden');
@@ -324,21 +335,20 @@ function submitPractice(sent){
   var input=$('p-input').value;
   if(!input.trim()){toast('先写点什么再提交吧');return;}
   var g=grade(sent.en,input);
-  var origSpans=wordSpans(g.oa,g.origMark);
-  var userSpans=wordSpans(g.ua,g.userMark);
   var html='<div class="result card">'+
     '<div class="score '+(g.allPass?'pass':'')+'">'+(g.allPass?'🎉 过关！':'😅 未过关')+' · 得分 <b>'+g.correct+'/'+g.total+'</b></div>'+
-    '<div class="r-label">原文对照（<span class="ok">绿</span>＝写对，<span class="bad">红</span>＝写错或漏掉）</div>'+
-    '<p class="r-en">'+origSpans+'</p>'+
-    '<div class="r-label">你的答案（<span class="bad">红</span>＝多写或写错）</div>'+
-    '<p class="r-en">'+userSpans+'</p>'+
     '<div class="r-label">生词收藏</div>'+
     '<button class="btn ghost small" id="p-collect-toggle">📖 收藏生词到单词本</button>'+
     '<div class="p-collect hidden" id="p-collect2">'+collectPanelHtml(sent)+'</div>'+
     '<div class="r-btns">';
   if(g.allPass){
     sent.passed=true;sent.passCount=(sent.passCount||0)+1;sent.lastPassedAt=Date.now();
-    sess.passOnce++;saveDB();
+    sess.passOnce++;
+    if(sent.abs&&sess.articleId){
+      var a2=DB.articles.find(function(a){return a.id===sess.articleId;});
+      if(a2){a2.absDone=a2.absDone||[];var ai=sent.i;if(ai!==undefined&&a2.absDone.indexOf(ai)<0)a2.absDone.push(ai);}
+    }
+    saveDB();
     html+='<button id="p-next" class="btn primary">下一题 →</button>';
   }else{
     html+='<button id="p-retry" class="btn primary">重练本题</button>'+
@@ -367,7 +377,7 @@ function renderPracticeSummary(){
       '<button class="btn ghost" id="s-back">返回</button>'+
     '</div></div>';
   $('s-retry').onclick=function(){
-    if(sess.mode==='abstract'){startAbstractPractice(sess.articleId);}
+    if(sess.mode==='abstract'){startAbstractPractice(sess.articleId,true);}
     else{var sc=sess.scope||'all';var aid=sess.articleId||null;startPractice(sc,aid);}
   };
   $('s-back').onclick=function(){sess=null;if(location.hash===back){route();}else{location.hash=back;}};
@@ -382,7 +392,7 @@ function fieldChipsHtml(f){
 function homeMetaHtml(a){
   var parts=[];
   if(a.author)parts.push('<span class="meta-author">'+esc(a.author)+'</span>');
-  if(a.year)parts.push('<span class="meta-year">'+esc(a.year)+'</span>');
+  if(a.year)parts.push('<span class="meta-year">'+esc(a.year)+'年</span>');
   if(a.journal)parts.push('<span class="meta-journal">'+esc(a.journal)+'</span>');
   if(!parts.length)return '';
   return '<div class="a-meta" style="margin-top:2px">'+parts.join(' · ')+'</div>';
@@ -390,7 +400,7 @@ function homeMetaHtml(a){
 function articleMetaHtml(art){
   var parts=[];
   if(art.author)parts.push('<span class="meta-author">作者：'+esc(art.author)+'</span>');
-  if(art.year)parts.push('<span class="meta-year">'+esc(art.year)+'</span>');
+  if(art.year)parts.push('<span class="meta-year">'+esc(art.year)+'年</span>');
   if(art.journal)parts.push('<span class="meta-journal">'+esc(art.journal)+'</span>');
   var fields=String(art.field||'').split(/[,，]/).map(function(x){return x.trim();}).filter(Boolean);
   fields.forEach(function(f){parts.push('<span class="chip small">'+esc(f)+'</span>');});
@@ -466,12 +476,17 @@ function renderHome(){
 /* ---------- 文章详情 ---------- */
 function absCardHtml(art){
   if(art.abstractEn&&art.abstractZh){
+    var doneN=art.absDone?art.absDone.length:0;
+    var totalN=splitAbstract(art.abstractEn).length;
+    var btnLabel=doneN?(doneN>=totalN?'▶ 再练一遍':'▶ 继续练习（剩 '+(totalN-doneN)+' 句）'):'▶ 摘要练习';
     return '<div class="card" id="abs-card">'+
       '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px">'+
         '<h2 style="margin:0;flex:1">📄 摘要</h2>'+
-        '<button class="btn primary small" id="abs-practice">▶ 摘要练习</button>'+
+        '<button class="btn primary small" id="abs-practice">'+btnLabel+'</button>'+
         '<button class="btn ghost small" id="abs-edit">编辑</button>'+
+        (doneN?'<button class="btn ghost small" id="abs-reset">重置进度</button>':'')+
       '</div>'+
+      (doneN?'<div class="muted" style="font-size:.82rem;margin-bottom:6px">摘要练习进度：已过关 <b>'+doneN+'</b> / '+totalN+' 句</div>':'')+
       '<div class="p-label">中文翻译（点下方展开英文）</div>'+
       '<p style="margin:.5rem 0">'+esc(art.abstractZh)+'</p>'+
       '<button class="en-toggle" id="abs-toggle">显示英文 ▾</button>'+
@@ -522,6 +537,9 @@ function renderArticle(id){
   $('a-del').onclick=function(){deleteArticle(id);};
   if($('abs-practice'))$('abs-practice').onclick=function(){location.hash='#/ab/'+id;};
   if($('abs-edit'))$('abs-edit').onclick=function(){abstractModal(id);};
+  if($('abs-reset'))$('abs-reset').onclick=function(){
+    if(confirm('确定重置这篇摘要的练习进度？')){delete art.absDone;delete art.absPos;saveDB();renderArticle(id);toast('已重置摘要练习进度');}
+  };
   if($('abs-toggle'))$('abs-toggle').onclick=function(){var el=$('abs-en');el.classList.toggle('hidden');this.textContent=el.classList.contains('hidden')?'显示英文 ▾':'隐藏英文 ▴';};
   $('f-search').oninput=function(){fSearch=this.value;refreshSentList();};
   $('f-unpassed').onchange=function(){fUnpassed=this.checked;refreshSentList();};
@@ -616,7 +634,7 @@ function abstractModal(id){
     '<textarea id="m-abs-en" rows="5" placeholder="Paste the English abstract here…">'+(art.abstractEn?esc(art.abstractEn):'')+'</textarea>'+
     '<label>中文翻译（练习时看这个）</label>'+
     '<textarea id="m-abs-zh" rows="5" placeholder="你的中文翻译">'+(art.abstractZh?esc(art.abstractZh):'')+'</textarea>'+
-    '<button class="btn ghost small" id="m-swap-abs" type="button">⇄ 互换中英文</button>'+
+    '<button class="btn ghost small" id="m-swap-abs" type="button">⇄ 互换中英文（如果填反了，点这里）</button>'+
     '<div class="muted" style="font-size:.78rem">建议中英文一句对一句，练习时会按句逐句过关</div>'+
     '<div class="modal-btns"><button class="btn primary" id="m-save">保存</button><button class="btn ghost" id="m-cancel">取消</button></div>');
   $('m-cancel').onclick=closeModal;
@@ -628,6 +646,7 @@ function abstractModal(id){
     var en=$('m-abs-en').value.trim(),zh=$('m-abs-zh').value.trim();
     if(!en||!zh){toast('英文摘要和中文翻译都要填');return;}
     art.abstractEn=en;art.abstractZh=zh;
+    delete art.absDone;delete art.absPos;
     saveDB();closeModal();renderArticle(id);
   };
 }
