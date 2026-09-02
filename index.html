@@ -71,6 +71,8 @@ textarea{resize:vertical;min-height:90px}
 .p-reveal-box{margin:10px 0;background:#f0fdf4;border:1px dashed #86efac;border-radius:8px;padding:10px;color:#166534}
 .p-live-label{font-size:.8rem;color:var(--muted);margin-top:10px}
 .live{padding:10px 12px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;margin:10px 0;line-height:2.1;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:1.05rem;word-break:break-all}
+.p-hint{min-height:38px;padding:8px 12px;background:#fffbeb;border:1px dashed #fcd34d;border-radius:8px;margin:4px 0 10px;line-height:2;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:1rem;word-break:break-all}
+.hword{color:#b45309;font-weight:600}
 .slot{display:inline-block;margin:2px 4px 2px 0;padding:1px 4px;border-radius:4px;color:#334155}
 .slot.ok{background:var(--okbg);color:var(--ok)}
 .slot.bad{background:var(--badbg);color:var(--bad);text-decoration:underline wavy}
@@ -247,19 +249,42 @@ function renderPractice(){
       '<div class="p-label">'+(sess.mode==='abstract'?'摘要 · 看中文写出这句英文':'中文 → 凭记忆写出英文')+'</div>'+
       (sent.zh?'<p class="p-zh">'+esc(sent.zh)+'</p>':'<p class="muted">（这句没有对应的中文翻译，可点「显示原文」查看）</p>')+
       '<div class="p-reveal-box hidden" id="p-reveal-box">原文：'+esc(sent.en)+'</div>'+
+      '<div class="p-live-label">逐词提示：按 Shift＋空格 显示下一个单词（不会显示整句原文）</div>'+
+      '<div class="p-hint" id="p-hint"></div>'+
       '<div class="p-live-label">长度提示：<b>＿</b>＝该词还没写（下划线数量＝大致长度） · <span class="ok">绿</span>＝写对 · <span class="bad">红</span>＝写错</div>'+
       '<div class="live" id="p-live"></div>'+
       '<textarea id="p-input" rows="4" placeholder="在此输入英文原文…"></textarea>'+
       '<div style="margin-top:10px"><button class="btn primary block" id="p-submit">提交检查</button></div>'+
-      '<div class="muted" style="font-size:.78rem;margin-top:6px">小技巧：⌘ / Ctrl + Enter 可快速提交</div>'+
+      '<div class="muted" style="font-size:.78rem;margin-top:6px">小技巧：⌘ / Ctrl + Enter 提交 · Shift＋空格 逐词提示</div>'+
     '</div>'+
     '<div id="p-result"></div>';
+  var revealN=0;
+  function renderHint(){
+    var words=splitWords(sent.en);
+    if(!revealN){$('p-hint').innerHTML='<span class="muted">还没提示，按 Shift＋空格 显示第一个单词</span>';return;}
+    var out=words.slice(0,revealN).map(function(w){return '<span class="hword">'+esc(w)+'</span>';}).join(' ');
+    if(revealN<words.length)out+=' <span class="muted">…</span>';
+    $('p-hint').innerHTML=out;
+  }
+  function revealNextWord(){
+    var words=splitWords(sent.en);
+    if(revealN<words.length)revealN++;
+    renderHint();
+  }
   $('p-exit').onclick=function(){var back=sess.articleId?'#/a/'+sess.articleId:'#/';sess=null;if(location.hash===back){route();}else{location.hash=back;}};
-  $('p-reveal').onclick=function(){$('p-reveal-box').classList.remove('hidden');};
+  $('p-reveal').onclick=function(){
+    var box=$('p-reveal-box');
+    var hidden=box.classList.toggle('hidden');
+    this.textContent=hidden?'显示原文':'隐藏原文';
+  };
   $('p-submit').onclick=function(){submitPractice(sent);};
   var ta=$('p-input');
   ta.addEventListener('input',function(){renderLive(sent);});
-  ta.addEventListener('keydown',function(e){if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();submitPractice(sent);}});
+  ta.addEventListener('keydown',function(e){
+    if(e.shiftKey&&(e.code==='Space'||e.key===' ')){e.preventDefault();revealNextWord();return;}
+    if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();submitPractice(sent);}
+  });
+  renderHint();
   renderLive(sent);
   ta.focus();
 }
@@ -357,7 +382,7 @@ function fieldChipsHtml(f){
 function homeMetaHtml(a){
   var parts=[];
   if(a.author)parts.push('<span class="meta-author">'+esc(a.author)+'</span>');
-  if(a.year)parts.push('<span class="meta-year">'+esc(a.year)+'</span>');
+  if(a.year)parts.push('<span class="meta-year">'+esc(a.year)+'年</span>');
   if(a.journal)parts.push('<span class="meta-journal">'+esc(a.journal)+'</span>');
   if(!parts.length)return '';
   return '<div class="a-meta" style="margin-top:2px">'+parts.join(' · ')+'</div>';
@@ -365,7 +390,7 @@ function homeMetaHtml(a){
 function articleMetaHtml(art){
   var parts=[];
   if(art.author)parts.push('<span class="meta-author">作者：'+esc(art.author)+'</span>');
-  if(art.year)parts.push('<span class="meta-year">'+esc(art.year)+'</span>');
+  if(art.year)parts.push('<span class="meta-year">'+esc(art.year)+'年</span>');
   if(art.journal)parts.push('<span class="meta-journal">'+esc(art.journal)+'</span>');
   var fields=String(art.field||'').split(/[,，]/).map(function(x){return x.trim();}).filter(Boolean);
   fields.forEach(function(f){parts.push('<span class="chip small">'+esc(f)+'</span>');});
@@ -420,6 +445,7 @@ function renderHome(){
       (total?'<button class="btn ghost" id="btn-practice-all">🎲 随机练习全部</button>':'')+
       '<button class="btn ghost" id="btn-export">⬇ 导出数据</button>'+
       '<button class="btn ghost" id="btn-import">⬆ 导入数据</button>'+
+      '<button class="btn ghost" id="btn-fix">🔄 修复中英文</button>'+
       '<button class="btn ghost" id="btn-help">？帮助</button>'+
     '</div>'+
     '<input type="text" id="home-search" placeholder="🔍 搜标题 / 作者 / 方向 / 年份 / 期刊…" style="margin-bottom:12px">'+
@@ -430,6 +456,7 @@ function renderHome(){
   if($('btn-practice-all'))$('btn-practice-all').onclick=function(){location.hash='#/p';};
   $('btn-export').onclick=exportData;
   $('btn-import').onclick=function(){$('import-file').click();};
+  $('btn-fix').onclick=function(){fixSwapped();};
   $('import-file').onchange=importData;
   $('btn-help').onclick=function(){helpModal();};
   $('home-search').oninput=function(){$('home-grid').innerHTML=homeGridInner();bindHomeCards();};
@@ -589,9 +616,14 @@ function abstractModal(id){
     '<textarea id="m-abs-en" rows="5" placeholder="Paste the English abstract here…">'+(art.abstractEn?esc(art.abstractEn):'')+'</textarea>'+
     '<label>中文翻译（练习时看这个）</label>'+
     '<textarea id="m-abs-zh" rows="5" placeholder="你的中文翻译">'+(art.abstractZh?esc(art.abstractZh):'')+'</textarea>'+
+    '<button class="btn ghost small" id="m-swap-abs" type="button">⇄ 互换中英文（如果填反了，点这里）</button>'+
     '<div class="muted" style="font-size:.78rem">建议中英文一句对一句，练习时会按句逐句过关</div>'+
     '<div class="modal-btns"><button class="btn primary" id="m-save">保存</button><button class="btn ghost" id="m-cancel">取消</button></div>');
   $('m-cancel').onclick=closeModal;
+  $('m-swap-abs').onclick=function(){
+    var enEl=$('m-abs-en'),zhEl=$('m-abs-zh');
+    var t=enEl.value;enEl.value=zhEl.value;zhEl.value=t;
+  };
   $('m-save').onclick=function(){
     var en=$('m-abs-en').value.trim(),zh=$('m-abs-zh').value.trim();
     if(!en||!zh){toast('英文摘要和中文翻译都要填');return;}
@@ -606,10 +638,15 @@ function sentenceModal(articleId,id){
     '<textarea id="m-en" rows="3" placeholder="Paste the English sentence here…">'+(s?esc(s.en):'')+'</textarea>'+
     '<label>中文译文（练习时只显示这个）</label>'+
     '<textarea id="m-zh" rows="2" placeholder="你的中文翻译">'+(s?esc(s.zh):'')+'</textarea>'+
+    '<button class="btn ghost small" id="m-swap-en" type="button">⇄ 互换中英文（如果填反了，点这里）</button>'+
     '<label>标签（用逗号分隔，可选）</label>'+
     '<input type="text" id="m-tags" value="'+(s?esc((s.tags||[]).join(', ')):'')+'" placeholder="例如：introduction, 转折, 文献综述">'+
     '<div class="modal-btns"><button class="btn primary" id="m-save">保存</button><button class="btn ghost" id="m-cancel">取消</button></div>');
   $('m-cancel').onclick=closeModal;
+  $('m-swap-en').onclick=function(){
+    var enEl=$('m-en'),zhEl=$('m-zh');
+    var t=enEl.value;enEl.value=zhEl.value;zhEl.value=t;
+  };
   $('m-save').onclick=function(){
     var en=$('m-en').value.trim(),zh=$('m-zh').value.trim();
     if(!en||!zh){toast('英文和中文都不能为空');return;}
@@ -651,6 +688,30 @@ function importData(e){
   };
   reader.readAsText(f);
   e.target.value='';
+}
+function isCjk(s){
+  var t=String(s||'').replace(/\s+/g,'');
+  if(!t.length)return false;
+  var c=0;
+  for(var i=0;i<t.length;i++){
+    var code=t.charCodeAt(i);
+    if(code>=0x4E00&&code<=0x9FFF)c++;
+  }
+  return c/t.length>0.4;
+}
+function fixSwapped(){
+  var swaps=0;
+  DB.sentences.forEach(function(s){
+    if(isCjk(s.en)&&s.zh&&!isCjk(s.zh)){var t=s.en;s.en=s.zh;s.zh=t;swaps++;}
+  });
+  DB.articles.forEach(function(a){
+    if(a.abstractEn&&a.abstractZh&&isCjk(a.abstractEn)&&!isCjk(a.abstractZh)){var t=a.abstractEn;a.abstractEn=a.abstractZh;a.abstractZh=t;swaps++;}
+  });
+  DB.words.forEach(function(w){
+    if(w.word&&w.mean&&isCjk(w.word)&&!isCjk(w.mean)){var t=w.word;w.word=w.mean;w.mean=t;swaps++;}
+  });
+  if(swaps){saveDB();toast('已修复 '+swaps+' 处：英文和中文已互换回来');route();}
+  else{toast('没发现填反的内容，数据都正常');}
 }
 function helpModal(){
   openModal('使用说明','<div style="font-size:.92rem">'+
