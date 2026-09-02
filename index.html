@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>学术英语回译 · 看中文写英文</title>
+<style>
+:root{
+  --bg:#f4f6fb; --card:#ffffff; --ink:#1f2430; --muted:#6b7280;
+  --primary:#2563eb; --primary-dark:#1d4ed8; --ok:#15803d; --okbg:#dcfce7;
+  --bad:#b91c1c; --badbg:#fee2e2; --line:#e5e7eb; --shadow:0 1px 3px rgba(16,24,40,.08);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+.container{max-width:880px;margin:0 auto;padding:16px}
+.hidden{display:none!important}
+.muted{color:var(--muted);font-size:.92rem}
+.app-header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.app-header .container{display:flex;align-items:center;padding-top:12px;padding-bottom:12px}
+.app-header .logo{font-weight:700;font-size:1.05rem}
+.app-header a{color:#fff;text-decoration:none}
+.app-header .sub{font-size:.8rem;opacity:.85}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+h1{font-size:1.35rem;margin:.4rem 0}
+h2{font-size:1.15rem;margin:.2rem 0}
+.btn{display:inline-block;border:1px solid transparent;background:#fff;color:var(--ink);padding:9px 14px;border-radius:9px;font-size:.92rem;cursor:pointer;text-decoration:none;transition:.15s;font-family:inherit;text-align:center}
+.btn.primary{background:var(--primary);color:#fff}
+.btn.primary:active{background:var(--primary-dark)}
+.btn.ghost{border-color:var(--line);background:#fff}
+.btn.danger{color:#b91c1c;border-color:#fecaca;background:#fff}
+.btn.small{padding:5px 10px;font-size:.82rem;border-radius:7px}
+.btn.block{width:100%}
+.btn:hover{filter:brightness(.97)}
+.stats{display:flex;gap:10px;margin:14px 0}
+.stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:1.5rem}
+.stat span{color:var(--muted);font-size:.82rem}
+.home-actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.a-title{font-weight:600;font-size:1rem;line-height:1.4}
+.a-meta{color:var(--muted);font-size:.82rem;margin:4px 0 10px}
+.a-btns{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-block;background:#eef2ff;color:#3730a3;border:none;border-radius:999px;padding:3px 10px;font-size:.78rem;cursor:pointer;margin:2px}
+.chip.small{padding:1px 8px}
+.chip.active{background:#2563eb;color:#fff}
+.filters{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.filters input[type=text],.filters #f-search{flex:1;min-width:160px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;font-size:.92rem;font-family:inherit}
+.check{display:flex;align-items:center;gap:6px;font-size:.88rem;color:var(--muted);white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:4px;width:100%}
+.sent-zh{font-size:1.02rem}
+.sent-tags{margin:6px 0}
+.badge{font-size:.75rem;padding:2px 9px;border-radius:999px;margin-left:6px}
+.badge.pass{background:var(--okbg);color:var(--ok)}
+.badge.new{background:#fef3c7;color:#92400e}
+.en-toggle{background:none;border:none;color:var(--primary);cursor:pointer;font-size:.85rem;padding:2px 0}
+.sent-en{margin-top:8px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;padding:10px;font-size:.95rem}
+.sent-meta{color:var(--muted);font-size:.78rem;margin-top:6px}
+.sent-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.practice-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.p-progress{flex:1;text-align:center;font-size:.92rem}
+.p-zh{font-size:1.25rem;line-height:1.7}
+.p-label{color:var(--muted);font-size:.85rem}
+textarea,input[type=text]{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:.95rem;font-family:inherit;color:var(--ink)}
+textarea{resize:vertical;min-height:90px}
+.p-reveal-box{margin:10px 0;background:#f0fdf4;border:1px dashed #86efac;border-radius:8px;padding:10px;color:#166534}
+.p-live-label{font-size:.8rem;color:var(--muted);margin-top:10px}
+.live{padding:10px 12px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;margin:10px 0;line-height:2.1;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:1.05rem;word-break:break-all}
+.slot{display:inline-block;margin:2px 4px 2px 0;padding:1px 4px;border-radius:4px;color:#334155}
+.slot.ok{background:var(--okbg);color:var(--ok)}
+.slot.bad{background:var(--badbg);color:var(--bad);text-decoration:underline wavy}
+.slot.typing{border-bottom:2px solid #94a3b8}
+.uhint{opacity:.45}
+.result{margin-top:14px}
+.score{font-size:1.1rem;font-weight:600;margin-bottom:8px}
+.score.pass{color:var(--ok)}
+.r-label{color:var(--muted);font-size:.82rem;margin:8px 0 4px}
+.r-en{font-size:1.05rem;line-height:2;word-break:break-word}
+.ok{background:var(--okbg);color:var(--ok);border-radius:4px;padding:1px 3px}
+.bad{background:var(--badbg);color:var(--bad);border-radius:4px;padding:1px 3px;text-decoration:underline wavy}
+.r-btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:520px;max-height:90vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+.modal h3{margin-top:0}
+.modal label{display:block;font-size:.85rem;color:var(--muted);margin:12px 0 4px}
+.modal-btns{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:10px 18px;border-radius:999px;font-size:.9rem;opacity:0;pointer-events:none;transition:.25s;z-index:100;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty{text-align:center;color:var(--muted);padding:30px 16px}
+.summary{text-align:center;padding:40px 16px}
+.foot{margin-top:20px;text-align:center;color:var(--muted);font-size:.78rem;line-height:1.8}
+@media (max-width:560px){.container{padding:12px}.stat b{font-size:1.2rem}}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="container">
+    <div>
+      <div class="logo"><a href="#/">📖 学术英语回译</a></div>
+      <div class="sub">读文献 → 记句子 → 看中文回写英文 → 逐词过关</div>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="app"></main>
+<div class="foot">数据保存在「本设备」的浏览器里 · 换设备请用「导出 / 导入」迁移</div>
+
+<div id="modal-backdrop" class="modal-backdrop hidden"><div id="modal" class="modal"></div></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+var STORE_KEY='academic-recall-v1';
+var DB=loadDB();
+var sess=null;                 // 练习会话
+var curArticleId=null;         // 当前文章
+var fTag='all',fSearch='',fUnpassed=false; // 文章内筛选状态
+
+function $(id){return document.getElementById(id);}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+
+function loadDB(){
+  try{
+    var raw=localStorage.getItem(STORE_KEY);
+    if(raw){var d=JSON.parse(raw);if(d&&Array.isArray(d.articles)&&Array.isArray(d.sentences))return d;}
+  }catch(e){}
+  return {articles:[],sentences:[]};
+}
+function saveDB(){try{localStorage.setItem(STORE_KEY,JSON.stringify(DB));}catch(e){toast('保存失败：存储空间可能已满');}}
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function fmtDate(ts){try{return new Date(ts).toLocaleDateString('zh-CN');}catch(e){return '';}}
+function toast(msg){
+  var t=$('toast');
+  t.textContent=msg;t.className='show';
+  clearTimeout(t._timer);t._timer=setTimeout(function(){t.className='';},2400);
+}
+function shuffle(arr){for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;}return arr;}
+
+/* ---------- 判分：逐词对比 ---------- */
+function splitWords(s){return String(s||'').split(/\s+/).filter(Boolean);}
+function normToken(t){return t.toLowerCase().replace(/[\u2018\u2019\u02BC`']/g,"'").replace(/[^a-z0-9']/g,'');}
+function diffWords(a,b){
+  var n=a.length,m=b.length;
+  var dp=[];for(var i=0;i<=n;i++){dp.push(new Array(m+1).fill(0));}
+  for(i=n-1;i>=0;i--)for(var j=m-1;j>=0;j--)
+    dp[i][j]=a[i]===b[j]?1+dp[i+1][j+1]:Math.max(dp[i+1][j],dp[i][j+1]);
+  var origMark=new Array(n).fill('miss');
+  var userMark=new Array(m).fill('extra');
+  i=0;j=0;
+  while(i<n&&j<m){
+    if(a[i]===b[j]){origMark[i]='match';userMark[j]='match';i++;j++;}
+    else if(dp[i+1][j]>=dp[i][j+1])i++;
+    else j++;
+  }
+  return {origMark:origMark,userMark:userMark};
+}
+function grade(orig,user){
+  var oa=splitWords(orig),ua=splitWords(user);
+  var a=oa.map(normToken),b=ua.map(normToken);
+  var d=diffWords(a,b);
+  var correct=0;for(var k=0;k<d.origMark.length;k++)if(d.origMark[k]==='match')correct++;
+  var allPass=(correct===a.length)&&(b.length===a.length);
+  return {oa:oa,ua:ua,origMark:d.origMark,userMark:d.userMark,total:a.length,correct:correct,allPass:allPass};
+}
+function wordSpans(tokens,marks){
+  return tokens.map(function(w,i){return '<span class="'+(marks[i]==='match'?'ok':'bad')+'">'+esc(w)+'</span>';}).join(' ');
+}
+
+/* ---------- 路由 ---------- */
+function route(){
+  var h=location.hash||'#/';
+  if(h.indexOf('#/a/')===0){renderArticle(decodeURIComponent(h.slice(4)));}
+  else if(h.indexOf('#/p/')===0){startPractice('article',decodeURIComponent(h.slice(4)));}
+  else if(h==='#/p'){startPractice('all');}
+  else{renderHome();}
+}
+window.addEventListener('hashchange',route);
+
+/* ---------- 练习 ---------- */
+function startPractice(scope,articleId){
+  var ids;
+  if(scope==='all'){ids=DB.sentences.map(function(s){return s.id;});}
+  else{ids=DB.sentences.filter(function(s){return s.articleId===articleId;}).map(function(s){return s.id;});}
+  if(!ids.length){toast(scope==='all'?'还没有句子，先添加吧':'这篇文章还没有句子');location.hash=(scope==='all'?'#/':'#/a/'+articleId);return;}
+  shuffle(ids);
+  sess={scope:scope,articleId:articleId||null,ids:ids,idx:0,passOnce:0,total:ids.length};
+  renderPractice();
+}
+function startPracticeSingle(sid){
+  sess={scope:'article',articleId:curArticleId,ids:[sid],idx:0,passOnce:0,total:1};
+  renderPractice();
+}
+function renderPractice(){
+  if(!sess){location.hash='#/';return;}
+  if(sess.idx>=sess.ids.length){renderPracticeSummary();return;}
+  var sent=DB.sentences.find(function(s){return s.id===sess.ids[sess.idx];});
+  if(!sent){sess.idx++;renderPractice();return;}
+  var art=sess.articleId?DB.articles.find(function(a){return a.id===sess.articleId;}):null;
+  var app=$('app');
+  app.innerHTML=
+    '<div class="practice-top">'+
+      '<button class="btn ghost small" id="p-exit">← 退出</button>'+
+      '<span class="p-progress">第 <b>'+(sess.idx+1)+'</b> / '+sess.ids.length+' 句'+(art?' · '+esc(art.title):'')+'</span>'+
+      '<button class="btn ghost small" id="p-reveal">显示原文</button>'+
+    '</div>'+
+    '<div class="card">'+
+      '<div class="p-label">中文 → 凭记忆写出英文</div>'+
+      '<p class="p-zh">'+esc(sent.zh)+'</p>'+
+      '<div class="p-reveal-box hidden" id="p-reveal-box">原文：'+esc(sent.en)+'</div>'+
+      '<div class="p-live-label">长度提示：<b>＿</b>＝该词还没写（下划线数量＝大致长度） · <span class="ok">绿</span>＝写对 · <span class="bad">红</span>＝写错</div>'+
+      '<div class="live" id="p-live"></div>'+
+      '<textarea id="p-input" rows="4" placeholder="在此输入英文原文…"></textarea>'+
+      '<div style="margin-top:10px"><button class="btn primary block" id="p-submit">提交检查</button></div>'+
+      '<div class="muted" style="font-size:.78rem;margin-top:6px">小技巧：⌘ / Ctrl + Enter 可快速提交</div>'+
+    '</div>'+
+    '<div id="p-result"></div>';
+  $('p-exit').onclick=function(){var back=sess.articleId?'#/a/'+sess.articleId:'#/';sess=null;if(location.hash===back){route();}else{location.hash=back;}};
+  $('p-reveal').onclick=function(){$('p-reveal-box').classList.remove('hidden');};
+  $('p-submit').onclick=function(){submitPractice(sent);};
+  var ta=$('p-input');
+  ta.addEventListener('input',function(){renderLive(sent);});
+  ta.addEventListener('keydown',function(e){if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();submitPractice(sent);}});
+  renderLive(sent);
+  ta.focus();
+}
+function computeLive(origText,inputText){
+  var origTokens=splitWords(origText);
+  var userTokens=String(inputText||'').split(/\s+/).filter(Boolean);
+  var endsWithSpace=/\s+$/.test(inputText||'');
+  var slots=[],i;
+  for(i=0;i<origTokens.length;i++){
+    var orig=origTokens[i];
+    var n=Math.max(1,normToken(orig).length);
+    if(i<userTokens.length){
+      var complete=(i<userTokens.length-1)||endsWithSpace;
+      if(complete){
+        var ok=normToken(userTokens[i])===normToken(orig);
+        slots.push({text:userTokens[i],cls:ok?'ok':'bad'});
+      }else{
+        var typed=userTokens[i];
+        var remain=Math.max(0,n-typed.length);
+        slots.push({text:typed,cls:'typing',hint:new Array(remain+1).join('_')});
+      }
+    }else{
+      slots.push({text:new Array(n+1).join('_'),cls:'plain'});
+    }
+  }
+  for(;i<userTokens.length;i++){slots.push({text:userTokens[i],cls:'bad'});}
+  return slots;
+}
+function renderLive(sent){
+  var html=computeLive(sent.en,$('p-input').value).map(function(s){
+    if(s.cls==='typing'){return '<span class="slot typing">'+esc(s.text)+'<span class="uhint">'+esc(s.hint)+'</span></span>';}
+    return '<span class="slot '+s.cls+'">'+esc(s.text)+'</span>';
+  }).join('');
+  $('p-live').innerHTML=html;
+}
+function submitPractice(sent){
+  var input=$('p-input').value;
+  if(!input.trim()){toast('先写点什么再提交吧');return;}
+  var g=grade(sent.en,input);
+  var origSpans=wordSpans(g.oa,g.origMark);
+  var userSpans=wordSpans(g.ua,g.userMark);
+  var html='<div class="result card">'+
+    '<div class="score '+(g.allPass?'pass':'')+'">'+(g.allPass?'🎉 过关！':'😅 未过关')+' · 得分 <b>'+g.correct+'/'+g.total+'</b></div>'+
+    '<div class="r-label">原文对照（<span class="ok">绿</span>＝写对，<span class="bad">红</span>＝写错或漏掉）</div>'+
+    '<p class="r-en">'+origSpans+'</p>'+
+    '<div class="r-label">你的答案（<span class="bad">红</span>＝多写或写错）</div>'+
+    '<p class="r-en">'+userSpans+'</p>'+
+    '<div class="r-btns">';
+  if(g.allPass){
+    sent.passed=true;sent.passCount=(sent.passCount||0)+1;sent.lastPassedAt=Date.now();
+    sess.passOnce++;saveDB();
+    html+='<button id="p-next" class="btn primary">下一题 →</button>';
+  }else{
+    html+='<button id="p-retry" class="btn primary">重练本题</button>'+
+          '<button id="p-next" class="btn ghost">跳过 →</button>';
+  }
+  html+='</div></div>';
+  $('p-result').innerHTML=html;
+  $('p-input').disabled=true;$('p-submit').disabled=true;
+  var retry=$('p-retry');
+  if(retry)retry.addEventListener('click',function(){
+    $('p-result').innerHTML='';
+    var ta=$('p-input');ta.disabled=false;$('p-submit').disabled=false;ta.value='';renderLive(sent);ta.focus();
+  });
+  var next=$('p-next');
+  if(next)next.addEventListener('click',function(){sess.idx++;renderPractice();});
+}
+function renderPracticeSummary(){
+  var back=sess.articleId?'#/a/'+sess.articleId:'#/';
+  var app=$('app');
+  app.innerHTML='<div class="card summary">'+
+    '<h2>本次练习完成 ✅</h2>'+
+    '<p>共练习 <b>'+sess.total+'</b> 句，一次性过关 <b>'+sess.passOnce+'</b> 句。</p>'+
+    '<div class="r-btns" style="justify-content:center">'+
+      '<button class="btn primary" id="s-retry">再来一遍</button>'+
+      '<button class="btn ghost" id="s-back">返回</button>'+
+    '</div></div>';
+  $('s-retry').onclick=function(){var sc=sess.scope||'all';var aid=sess.articleId||null;startPractice(sc,aid);};
+  $('s-back').onclick=function(){sess=null;if(location.hash===back){route();}else{location.hash=back;}};
+}
+
+/* ---------- 首页 ---------- */
+function renderHome(){
+  var total=DB.sentences.length;
+  var passed=DB.sentences.filter(function(s){return s.passed;}).length;
+  var cards=DB.articles.map(function(a){
+    var list=DB.sentences.filter(function(s){return s.articleId===a.id;});
+    var p=list.filter(function(s){return s.passed;}).length;
+    return '<div class="card a-card">'+
+      '<div class="a-title">'+esc(a.title)+'</div>'+
+      '<div class="a-meta">'+list.length+' 句 · 已过关 '+p+'/'+list.length+' · '+fmtDate(a.createdAt)+'</div>'+
+      '<div class="a-btns">'+
+        '<a class="btn primary small" href="#/a/'+encodeURIComponent(a.id)+'">打开</a>'+
+        '<a class="btn ghost small" href="#/p/'+encodeURIComponent(a.id)+'">练习</a>'+
+        '<button class="btn ghost small" data-aedit="'+a.id+'">重命名</button>'+
+        '<button class="btn danger small" data-adel="'+a.id+'">删除</button>'+
+      '</div></div>';
+  }).join('');
+  var app=$('app');
+  app.innerHTML=
+    '<h1>我的语料库</h1>'+
+    '<div class="stats">'+
+      '<div class="stat"><b>'+DB.articles.length+'</b><span>文章</span></div>'+
+      '<div class="stat"><b>'+total+'</b><span>句子</span></div>'+
+      '<div class="stat"><b>'+passed+'</b><span>已过关</span></div>'+
+    '</div>'+
+    '<div class="home-actions">'+
+      '<button class="btn primary" id="btn-new-article">＋ 新建文章</button>'+
+      (total?'<button class="btn ghost" id="btn-practice-all">🎲 随机练习全部</button>':'')+
+      '<button class="btn ghost" id="btn-export">⬇ 导出数据</button>'+
+      '<button class="btn ghost" id="btn-import">⬆ 导入数据</button>'+
+      '<button class="btn ghost" id="btn-help">？帮助</button>'+
+    '</div>'+
+    (cards?'<div class="cards-grid">'+cards+'</div>':'<div class="card empty">'+
+      '<p>还没有内容。先<b>新建文章</b>（用论文题目当文件夹名），再往里面添加句子。</p>'+
+      '<button class="btn ghost" id="btn-demo">载入几条示例句子看看效果</button>'+
+    '</div>')+
+    '<input type="file" id="import-file" accept=".json,.txt" class="hidden">';
+  $('btn-new-article').onclick=function(){articleModal();};
+  if($('btn-practice-all'))$('btn-practice-all').onclick=function(){location.hash='#/p';};
+  $('btn-export').onclick=exportData;
+  $('btn-import').onclick=function(){$('import-file').click();};
+  $('import-file').onchange=importData;
+  $('btn-help').onclick=function(){helpModal();};
+  if($('btn-demo'))$('btn-demo').onclick=loadDemo;
+  document.querySelectorAll('[data-aedit]').forEach(function(b){b.onclick=function(){articleModal(b.dataset.aedit);};});
+  document.querySelectorAll('[data-adel]').forEach(function(b){b.onclick=function(){deleteArticle(b.dataset.adel);};});
+}
+
+/* ---------- 文章详情 ---------- */
+function renderArticle(id){
+  var art=DB.articles.find(function(a){return a.id===id;});
+  if(!art){location.hash='#/';return;}
+  curArticleId=id;fTag='all';fSearch='';fUnpassed=false;
+  var all=DB.sentences.filter(function(s){return s.articleId===id;});
+  var passed=all.filter(function(s){return s.passed;}).length;
+  var tagSet=[];all.forEach(function(s){(s.tags||[]).forEach(function(t){if(tagSet.indexOf(t)<0)tagSet.push(t);});});
+  var app=$('app');
+  app.innerHTML=
+    '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
+      '<button class="btn ghost small" id="a-back">← 返回</button>'+
+      '<h1 style="margin:0;flex:1">'+esc(art.title)+'</h1>'+
+    '</div>'+
+    '<p class="muted">共 '+all.length+' 句 · 已过关 '+passed+'/'+all.length+'</p>'+
+    '<div class="home-actions">'+
+      '<button class="btn primary" id="a-practice">▶ 开始练习</button>'+
+      '<button class="btn ghost" id="a-add">＋ 新增句子</button>'+
+      '<button class="btn ghost small" id="a-rename">重命名</button>'+
+      '<button class="btn danger small" id="a-del">删除文章</button>'+
+    '</div>'+
+    '<div class="filters card">'+
+      '<input type="text" id="f-search" placeholder="搜索英文或中文…">'+
+      '<label class="check"><input type="checkbox" id="f-unpassed"> 只看未过关</label>'+
+      '<div class="chips" id="f-chips">'+
+        '<button class="chip active" data-tag="all">全部</button>'+
+        tagSet.map(function(t){return '<button class="chip" data-tag="'+esc(t)+'">'+esc(t)+'</button>';}).join('')+
+      '</div>'+
+    '</div>'+
+    '<div id="sent-list">'+renderSentList()+'</div>';
+  $('a-back').onclick=function(){location.hash='#/';};
+  $('a-practice').onclick=function(){location.hash='#/p/'+id;};
+  $('a-add').onclick=function(){sentenceModal(id);};
+  $('a-rename').onclick=function(){articleModal(id);};
+  $('a-del').onclick=function(){deleteArticle(id);};
+  $('f-search').oninput=function(){fSearch=this.value;$('sent-list').innerHTML=renderSentList();};
+  $('f-unpassed').onchange=function(){fUnpassed=this.checked;$('sent-list').innerHTML=renderSentList();};
+  document.querySelectorAll('#f-chips .chip').forEach(function(c){
+    c.onclick=function(){fTag=c.dataset.tag;document.querySelectorAll('#f-chips .chip').forEach(function(x){x.classList.toggle('active',x===c);});$('sent-list').innerHTML=renderSentList();};
+  });
+  bindSentList();
+}
+function renderSentList(){
+  var list=DB.sentences.filter(function(s){return s.articleId===curArticleId;});
+  if(fTag!=='all')list=list.filter(function(s){return (s.tags||[]).indexOf(fTag)>=0;});
+  if(fSearch)list=list.filter(function(s){return (s.en+' '+s.zh).toLowerCase().indexOf(fSearch.toLowerCase())>=0;});
+  if(fUnpassed)list=list.filter(function(s){return !s.passed;});
+  if(!list.length)return '<div class="card empty"><p>没有符合条件的句子。</p></div>';
+  return list.map(function(s){
+    var tags=(s.tags||[]).map(function(t){return '<span class="chip small">'+esc(t)+'</span>';}).join('');
+    return '<div class="card sent">'+
+      '<div class="sent-zh">'+esc(s.zh)+'</div>'+
+      '<div class="sent-tags">'+tags+'<span class="badge '+(s.passed?'pass':'new')+'">'+(s.passed?'已过关':'未过关')+'</span></div>'+
+      '<button class="en-toggle" data-toggle="'+s.id+'">显示英文 ▾</button>'+
+      '<div class="sent-en hidden" id="sen-en-'+s.id+'">'+esc(s.en)+'</div>'+
+      '<div class="sent-meta">'+(s.passCount?('练过 '+s.passCount+' 次'):'还没练过')+' · 添加于 '+fmtDate(s.createdAt)+'</div>'+
+      '<div class="sent-actions">'+
+        '<button class="btn primary small" data-sp="'+s.id+'">练习此句</button>'+
+        '<button class="btn ghost small" data-sedit="'+s.id+'">编辑</button>'+
+        '<button class="btn danger small" data-sdel="'+s.id+'">删除</button>'+
+      '</div></div>';
+  }).join('');
+}
+function bindSentList(){
+  document.querySelectorAll('[data-toggle]').forEach(function(b){
+    b.onclick=function(){var el=$('sen-en-'+b.dataset.toggle);el.classList.toggle('hidden');b.textContent=el.classList.contains('hidden')?'显示英文 ▾':'隐藏英文 ▴';};
+  });
+  document.querySelectorAll('[data-sp]').forEach(function(b){b.onclick=function(){startPracticeSingle(b.dataset.sp);};});
+  document.querySelectorAll('[data-sedit]').forEach(function(b){b.onclick=function(){sentenceModal(curArticleId,b.dataset.sedit);};});
+  document.querySelectorAll('[data-sdel]').forEach(function(b){b.onclick=function(){deleteSentence(b.dataset.sdel);};});
+}
+function deleteSentence(id){
+  if(!confirm('删除这条句子？'))return;
+  DB.sentences=DB.sentences.filter(function(s){return s.id!==id;});
+  saveDB();renderArticle(curArticleId);
+}
+
+/* ---------- 弹窗：文章 / 句子 ---------- */
+function articleModal(id){
+  var art=id?DB.articles.find(function(a){return a.id===id;}):null;
+  openModal(art?'重命名文章':'新建文章',
+    '<label>文章标题（建议用论文题目）</label>'+
+    '<input type="text" id="m-title" value="'+(art?esc(art.title):'')+'" placeholder="例如：Attention Is All You Need (2017)">'+
+    '<div class="modal-btns"><button class="btn primary" id="m-save">保存</button><button class="btn ghost" id="m-cancel">取消</button></div>');
+  var input=$('m-title');input.focus();
+  $('m-cancel').onclick=closeModal;
+  $('m-save').onclick=function(){
+    var title=input.value.trim();
+    if(!title){toast('标题不能为空');return;}
+    if(art){art.title=title;}else{DB.articles.push({id:uid(),title:title,createdAt:Date.now()});}
+    saveDB();closeModal();renderHome();
+  };
+}
+function sentenceModal(articleId,id){
+  var s=id?DB.sentences.find(function(x){return x.id===id;}):null;
+  openModal(s?'编辑句子':'新增句子',
+    '<label>英文原文（从文献复制的好句子）</label>'+
+    '<textarea id="m-en" rows="3" placeholder="Paste the English sentence here…">'+(s?esc(s.en):'')+'</textarea>'+
+    '<label>中文译文（练习时只显示这个）</label>'+
+    '<textarea id="m-zh" rows="2" placeholder="你的中文翻译">'+(s?esc(s.zh):'')+'</textarea>'+
+    '<label>标签（用逗号分隔，可选）</label>'+
+    '<input type="text" id="m-tags" value="'+(s?esc((s.tags||[]).join(', ')):'')+'" placeholder="例如：introduction, 转折, 文献综述">'+
+    '<div class="modal-btns"><button class="btn primary" id="m-save">保存</button><button class="btn ghost" id="m-cancel">取消</button></div>');
+  $('m-cancel').onclick=closeModal;
+  $('m-save').onclick=function(){
+    var en=$('m-en').value.trim(),zh=$('m-zh').value.trim();
+    if(!en||!zh){toast('英文和中文都不能为空');return;}
+    var tags=$('m-tags').value.split(/[,，]/).map(function(t){return t.trim();}).filter(Boolean);
+    if(s){s.en=en;s.zh=zh;s.tags=tags;}
+    else{DB.sentences.push({id:uid(),articleId:articleId,en:en,zh:zh,tags:tags,createdAt:Date.now(),passed:false,passCount:0});}
+    saveDB();closeModal();renderArticle(articleId);
+  };
+}
+function openModal(title,bodyHtml){
+  $('modal').innerHTML='<h3>'+esc(title)+'</h3>'+bodyHtml;
+  $('modal-backdrop').classList.remove('hidden');
+}
+function closeModal(){$('modal-backdrop').classList.add('hidden');}
+$('modal-backdrop').addEventListener('click',function(e){if(e.target.id==='modal-backdrop')closeModal();});
+
+/* ---------- 导入 / 导出 / 帮助 / 示例 ---------- */
+function exportData(){
+  var data={version:1,exportedAt:new Date().toISOString(),articles:DB.articles,sentences:DB.sentences};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='学术英语回译数据_'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},100);
+  toast('已导出，请妥善保存这个文件');
+}
+function importData(e){
+  var f=e.target.files[0];if(!f)return;
+  var reader=new FileReader();
+  reader.onload=function(){
+    try{
+      var d=JSON.parse(reader.result);
+      if(!d||!Array.isArray(d.articles)||!Array.isArray(d.sentences))throw new Error('bad');
+      if(!confirm('导入将覆盖当前数据（当前 '+DB.sentences.length+' 句）。确定继续？'))return;
+      DB={articles:d.articles,sentences:d.sentences};
+      saveDB();toast('导入成功');route();
+    }catch(err){toast('导入失败：文件格式不正确');}
+  };
+  reader.readAsText(f);
+  e.target.value='';
+}
+function helpModal(){
+  openModal('使用说明','<div style="font-size:.92rem">'+
+    '<p><b>怎么用：</b>读文献时把好句子记下来（英文原文＋你的中文翻译＋标签），练习时只看中文，凭记忆写出英文，系统逐词检查，<b>每个单词都对了才过关</b>。</p>'+
+    '<p><b>判分规则：</b>单词必须完全一致（拼写、顺序、数量）；<b>大小写和句号逗号等标点不计较</b>；但撇号（如 it\'s / its）会计入对比，要认真写。</p>'+
+    '<p><b>多设备：</b>数据存在<b>当前设备的浏览器</b>里。换设备时：旧设备点「导出数据」→ 把 .json 文件传到新设备 → 新设备点「导入数据」选择该文件。建议定期导出备份。</p>'+
+    '<p><b>部署到网上：</b>把本文件拖到 <a href="https://app.netlify.com/drop" target="_blank" rel="noopener">app.netlify.com/drop</a> 即可获得网址，任意设备浏览器打开就能用（详见随附《使用说明.md》）。</p>'+
+    '<div class="modal-btns"><button class="btn primary" id="m-ok">知道了</button></div></div>');
+  $('m-ok').onclick=closeModal;
+}
+function loadDemo(){
+  var artId=uid();
+  DB.articles.push({id:artId,title:'示例：Introduction 里的句式',createdAt:Date.now()});
+  var demos=[
+    {en:'The rapid development of deep learning has transformed the field of natural language processing.',zh:'深度学习的快速发展已经改变了自然语言处理领域。',tags:['introduction','描述趋势']},
+    {en:'In this paper, we propose a novel framework that jointly learns representations of words and sentences.',zh:'在本文中，我们提出了一个新的框架，可以联合学习单词和句子的表示。',tags:['propose','introduction']},
+    {en:'Our experimental results demonstrate that the proposed method significantly outperforms existing baselines.',zh:'我们的实验结果表明，所提出的方法显著优于现有的基线方法。',tags:['results','对比']}
+  ];
+  demos.forEach(function(d){
+    DB.sentences.push({id:uid(),articleId:artId,en:d.en,zh:d.zh,tags:d.tags,createdAt:Date.now(),passed:false,passCount:0});
+  });
+  saveDB();renderHome();toast('已载入示例，可以开始体验了');
+}
+
+/* ---------- 启动 ---------- */
+route();
+</script>
+</body>
+</html>
